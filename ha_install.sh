@@ -254,7 +254,11 @@ $(version zigpy-zigate)
 EOF
 fi
 
-TMPDIR=${STORAGE_TMP} pip3 install --no-cache-dir -c /tmp/owrt_constraints.txt -r /tmp/requirements.txt
+# TMPDIR=${STORAGE_TMP} pip3 install --no-cache-dir -c /tmp/owrt_constraints.txt -r /tmp/requirements.txt
+# install one-by-one to avoid memory issues
+while read p; do
+  sh -c "TMPDIR=${STORAGE_TMP} pip3 install --no-cache-dir -c /tmp/owrt_constraints.txt $p"
+done < /tmp/requirements.txt
 
 if [ $GTW360_GATEWAY ]; then
   pip3 install --no-deps zigpy-zboss==${ZIGPY_ZBOSS_VER}
