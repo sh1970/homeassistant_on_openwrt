@@ -254,7 +254,15 @@ $(version zigpy-zigate)
 EOF
 fi
 
-TMPDIR=${STORAGE_TMP} pip3 install --no-cache-dir -c /tmp/owrt_constraints.txt -r /tmp/requirements.txt
+# TMPDIR=${STORAGE_TMP} pip3 install --no-cache-dir -c /tmp/owrt_constraints.txt -r /tmp/requirements.txt
+# install one-by-one to avoid memory issues
+cat /tmp/requirements.txt | sed -E 's/\[.*\]//g' >> /tmp/owrt_constraints.txt
+while read p; do
+  pkg_with_ver=$(echo $p | awk '{gsub(/ *#.*/,"");}1')
+  if [ $pkg_with_ver ]; then
+    sh -c "TMPDIR=${STORAGE_TMP} pip3 install --no-cache-dir -c /tmp/owrt_constraints.txt \"$pkg_with_ver\""
+  fi
+done < /tmp/requirements.txt
 
 if [ $GTW360_GATEWAY ]; then
   pip3 install --no-deps zigpy-zboss==${ZIGPY_ZBOSS_VER}
